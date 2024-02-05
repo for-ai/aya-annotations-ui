@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "pages/_app.scss";
+@import "pages/_home.scss";
+@import "pages/_workspace.scss";
+@import "pages/_leaderboard.scss";
+@import "variables.scss";
+
+body {
+  font-family: "DM Sans", sans-serif;
+
+  width: 100vw;
+  height: 100vh;
+}
+
+//Button styles
+.chakra-button {
+  &.aya-basic-button {
+    color: white;
+    background-color: $color-button;
+    font-family: "DM Sans", sans-serif;
+    padding: 1rem 1rem;
+    border-radius: 50px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    min-width: 200px;
+    transition: all 0.2s ease-in-out;
+    width: 100%; /* use full width on small screens */
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Medium devices (tablets) */
+    @media (min-width: 768px) {
+      width: auto; /* auto width on medium and larger screens */
+      min-width: 200px; /* ensure it's at least 200px wide */
+    }
+  }
+}
+
+//Input styles
+.chakra-textarea {
+  background: white;
+  border: 1px solid $color-input-border;
+  box-shadow: 0 2px 6px rgba(19, 18, 66, 0.07);
+  border-radius: 20px;
+  padding: 20px;
+  width: 100%;
+}
+
+//Label styles
+.aya-label {
+  background: $color-label-background;
+  padding: 1rem;
+  border-radius: 20px;
+}

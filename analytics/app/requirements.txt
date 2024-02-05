@@ -1,0 +1,7 @@
+pg8000==1.29.8
+gradio==3.36.1
+SQLAlchemy==2.0.18
+python-dotenv==1.0.0
+pycountry-convert==0.7.2
+cloud-sql-python-connector==1.2.4
+google-cloud-secret-manager==2.16.2

@@ -1,0 +1,71 @@
+steps:
+# Set the PR_BUILD flag
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    if [ "$_PR_BUILD" == "true" ]; then
+      echo "true" > /workspace/PR_BUILD.txt
+    else
+      echo "false" > /workspace/PR_BUILD.txt
+    fi
+  id: 'set-pr-build-flag'
+
+# Build the frontend Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args: [
+    'build', 
+    '--build-arg', 
+    'ENVIRONMENT=production', 
+    '--build-arg', 
+    'GOOGLE_ANALYTICS_ID=$_GOOGLE_ANALYTICS_ID', 
+    '-t', 
+    'gcr.io/$PROJECT_ID/frontend:$SHORT_SHA', 
+    './frontend/'
+    ]
+  id: 'build-frontend-image'
+
+# Push the frontend Docker image to Google Container Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/$PROJECT_ID/frontend:$SHORT_SHA']
+  id: 'push-frontend-image'
+
+# Deploy the frontend to Google Cloud Run
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    if [ "$(cat /workspace/PR_BUILD.txt)" == "false" ]; then
+      gcloud run deploy instruct-multilingual-frontend \
+        --image gcr.io/$PROJECT_ID/frontend:$SHORT_SHA \
+        --project $PROJECT_ID \
+        --region ${_REGION} \
+        --platform managed \
+        --allow-unauthenticated \
+        --concurrency 5 \
+        --cpu 2 \
+        --memory 2Gi \
+        --min-instances 5 \
+        --max-instances 15 \
+        --set-env-vars ENVIRONMENT=production,BACKEND_URL=https://instruct-multilingual-backend-dtjnk4f6ra-ue.a.run.app
+      echo $(gcloud run services describe instruct-multilingual-frontend --platform managed --region ${_REGION} --format 'value(status.url)') > /workspace/FRONTEND_URL.txt
+    fi
+  id: 'deploy-frontend'
+  timeout: '600s'
+
+# Update the backend with the correct FRONTEND_URL
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    if [ "$(cat /workspace/PR_BUILD.txt)" == "false" ]; then
+      gcloud run services update instruct-multilingual-backend \
+        --region ${_REGION} \
+        --platform managed \
+        --update-env-vars FRONTEND_URL="$(cat /workspace/FRONTEND_URL.txt)"
+    fi
+  id: 'update-backend-frontend-url'
+  

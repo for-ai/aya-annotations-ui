@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "instruct-multilingual-backend"
+version = "0.1.0"
+description = ""
+authors = [
+    "Herumb Shandilya <herumbshandilya123@gmail.com>",
+    "Oshan Ivantha <oshan.ivantha@gmail.com>",
+    "Freddie Vargus <fjv41995@gmail.com>",
+]
+readme = "README.md"
+packages = [{include = "instruct_multilingual"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "0.85.0"
+alembic = "^1.10.2"
+SQLAlchemy = "1.4.41"
+psycopg2-binary = "^2.9.5"
+pydantic = "^1.10.7"
+uvicorn = "^0.21.1"
+FastAPI-SQLAlchemy = "^0.2.1"
+python-dotenv = "^1.0.0"
+sqlmodel = "^0.0.8"
+python-dateutil = "^2.8.2"
+fastapi-discord = "^0.2.4"
+pycountry = "^22.3.5"
+requests = "^2.28.2"
+httpx = "^0.24.0"
+pyjwt = "^2.7.0"
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.11.0"
+pdbpp = "^0.10.3"
+pytest = "^7.2.2"
+jupyter = "^1.0.0"
+matplotlib = "^3.7.1"
+sqlalchemy-utils = "^0.41.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
