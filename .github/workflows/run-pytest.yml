@@ -1,0 +1,66 @@
+name: Backend unit tests
+
+on:
+  push:
+    branches: [ "staging", "production"]
+  pull_request:
+    paths:
+      - backend/**
+      - docker/Dockerfile.postgres
+
+defaults:
+ run:
+  working-directory: ./backend
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: backendapp
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: instruct_multilingual
+        ports:
+          - 5432:5432
+        # set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 2
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: build and run postgres docker container
+      uses: docker/build-push-action@v2
+      with:
+        context: ./docker/
+        file: ./docker/Dockerfile.postgres
+        push: false
+        tags: database:latest
+
+    - name: set up python 3.10
+      id: pythonsetup
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+
+    - name: install dependencies
+      if: steps.pythonsetup.outcome == 'success'
+      id: dependencies
+      run: |
+        pip install -U pip
+        pip install poetry
+        poetry install --with dev
+
+    - name: run pytest unit tests
+      if: steps.dependencies.outcome == 'success'
+      run: |
+        ENVIRONMENT=test poetry run pytest

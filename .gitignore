@@ -1,0 +1,52 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.csv
+*.ipynb_checkpoints/
+
+# python auto generated files
+*__pycache__
+*.pyc
+*.pyo
+
+# env files
+.env
+*.env.local
+*.env.staging*
+*.env.prod*
+*.env.team-instruct-multilingual-app.prod
+*.env.analytics-instruct-multilingual-app.prod
+.python-version
+
+# Project
+discord_credentials.json
+
+# ssl connections files
+*.pem
+
+# Coverage reports
+coverage
+
+# Lighthouse
+.lighthouseci

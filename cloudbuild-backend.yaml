@@ -1,0 +1,49 @@
+steps:
+# Set the PR_BUILD flag
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    if [ "$_PR_BUILD" == "true" ]; then
+      echo "true" > /workspace/PR_BUILD.txt
+    else
+      echo "false" > /workspace/PR_BUILD.txt
+    fi
+  id: 'set-pr-build-flag'
+
+# Build the backend Docker image.
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/backend:$SHORT_SHA', './backend/']
+  id: 'build-backend-image'
+
+# Push the backend Docker image to Google Container Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/$PROJECT_ID/backend:$SHORT_SHA']
+  id: 'push-backend-image'
+
+# Deploy the backend to Google Cloud Run
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    if [ "$(cat /workspace/PR_BUILD.txt)" == "false" ]; then
+      gcloud run deploy instruct-multilingual-backend \
+        --image gcr.io/$PROJECT_ID/backend:$SHORT_SHA \
+        --region ${_REGION} \
+        --platform managed \
+        --allow-unauthenticated \
+        --concurrency 5 \
+        --cpu 2 \
+        --memory 2Gi \
+        --min-instances 2 \
+        --max-instances 10 \
+        --set-cloudsql-instances $PROJECT_ID:${_REGION}:instruct-multilingual-app-db \
+        --vpc-connector $(gcloud secrets versions access latest --secret=VPC_CONNECTOR_BACKEND_PROD) \
+        --port 8080 \
+        --set-env-vars ENVIRONMENT=production,INSTRUCT_MULTILINGUAL_APP_DB_URI=${_INSTRUCT_MULTILINGUAL_APP_DB_URI},JWT_SECRET=${_JWT_SECRET},JWT_ALGORITHM=${_JWT_ALGORITHM},JWT_EXPIRATION_TIME=${_JWT_EXPIRATION_TIME},DISCORD_API_BASE_URL=${_DISCORD_API_BASE_URL},DISCORD_CLIENT_ID=${_DISCORD_CLIENT_ID},DISCORD_CLIENT_SECRET=${_DISCORD_CLIENT_SECRET},DISCORD_REDIRECT_URI=${_DISCORD_REDIRECT_URI},GOOGLE_CLIENT_ID=${_GOOGLE_CLIENT_ID},GOOGLE_CLIENT_SECRET=${_GOOGLE_CLIENT_SECRET},GOOGLE_REDIRECT_URI=${_GOOGLE_REDIRECT_URI},FRONTEND_URL=${_FRONTEND_URL},FOR_AI_URL=${_FOR_AI_URL},APP_NAME=${_APP_NAME},DISCORD_WEBHOOK_URL=${_DISCORD_WEBHOOK_URL}
+      echo $(gcloud run services describe instruct-multilingual-backend --platform managed --region ${_REGION} --format 'value(status.url)') > /workspace/BACKEND_URL.txt
+    fi
+  id: 'deploy-backend'
+  timeout: '600s'

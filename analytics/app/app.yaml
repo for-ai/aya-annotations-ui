@@ -1,0 +1,13 @@
+runtime: python311
+
+env_variables:
+  INSTANCE_CONNECTION_NAME: "AYA_READ_REPLICA_DB_CONN_NAME"
+  DB_USER: "AYA_READ_REPLICA_DB_USER"
+  DB_PASS: "AYA_READ_REPLICA_DB_PASS"
+  DB_NAME: "AYA_READ_REPLICA_DB_NAME"
+  C4AI_PROJECT_ID: "" #Add C4AI GCP Project ID here before app deployment
+  GRADIO_SERVER_NAME: "0.0.0.0"
+  GRADIO_SERVER_PORT: 8080
+  APP_ENVIRONMENT: "prod"
+
+entrypoint: python app.py

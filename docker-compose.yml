@@ -1,0 +1,104 @@
+version: '3'
+services:
+  database:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.postgres
+    container_name: postgresdb
+    volumes:
+      - postgresdb:/var/lib/postgresql/data
+    env_file:
+      - ./backend/.env.local
+    ports:
+      - "5432:5432"
+    expose:
+      - 5432
+    networks:
+      - app_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env.${ENVIRONMENT}
+    ports:
+      - "8080:8080"
+    expose:
+      - 8080
+    networks:
+      - app_network
+    depends_on:
+      - database
+    stdin_open: true
+    tty: true
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=local
+      - BACKEND_URL=http://backend:8080
+      - PORT=4000
+    ports:
+      - "4000:4000"
+    expose:
+      - 4000
+    networks:
+      - app_network
+    depends_on:
+      - backend
+
+  daily_leaderboard_job:
+    build:
+      context: ./backend/
+      dockerfile: jobs/daily/Dockerfile
+    env_file:
+      - ./backend/.env.${ENVIRONMENT}
+    networks:
+      - app_network
+    depends_on:
+      - database
+
+  weekly_leaderboard_job:
+    build:
+      context: ./backend/
+      dockerfile: jobs/weekly/Dockerfile
+    env_file:
+      - ./backend/.env.${ENVIRONMENT}
+    networks:
+      - app_network
+    depends_on:
+      - database
+
+  by_language_leaderboard_job:
+    build:
+      context: ./backend/
+      dockerfile: jobs/by_language/Dockerfile
+    env_file:
+      - ./backend/.env.${ENVIRONMENT}
+    networks:
+      - app_network
+    depends_on:
+      - database
+
+  overall_leaderboard_job:
+    build:
+      context: ./backend/
+      dockerfile: jobs/overall/Dockerfile
+    env_file:
+      - ./backend/.env.${ENVIRONMENT}
+    networks:
+      - app_network
+    depends_on:
+      - database
+    stdin_open: true
+    tty: true
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  postgresdb:

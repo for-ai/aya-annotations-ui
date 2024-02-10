@@ -1,0 +1,9 @@
+FROM postgres:14
+
+RUN apt-get update && apt-get install -y postgresql-contrib
+
+RUN echo "CREATE EXTENSION \"uuid-ossp\";" > /docker-entrypoint-initdb.d/init-extensions.sql
+RUN echo "CREATE EXTENSION IF NOT EXISTS pgcrypto;" >> /docker-entrypoint-initdb.d/init-extensions.sql
+RUN echo "DO \$body\$ BEGIN IF NOT EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'backendapp') THEN CREATE USER backendapp WITH PASSWORD 'password'; END IF; END \$body\$;" >> /docker-entrypoint-initdb.d/init-user.sql
+RUN echo "GRANT ALL PRIVILEGES ON DATABASE instruct_multilingual TO backendapp;" >> /docker-entrypoint-initdb.d/init-user.sql
+RUN echo "ALTER USER backendapp CREATEDB;" >> /docker-entrypoint-initdb.d/init-user.sql
