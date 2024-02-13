@@ -44,7 +44,7 @@ replacing `BUCKET_NAME`, `OBJECT_NAME`, and `LOCAL_DIR` with the names you're us
   - `template-name` can be a reasonable name like `no-template` if it doesn't use a template
   - `model-name` can be a name like `no-model` is no model was used
 
-If you need to see an example, plese view the `team3` datasets buckets in Cloud Storage.
+If you need to see an example, please view the `team3` datasets buckets in Cloud Storage.
 
 
 **Run the script**: If you made it this far you should be able to run the script. Try:
