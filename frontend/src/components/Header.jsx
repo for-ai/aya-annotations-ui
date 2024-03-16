@@ -41,18 +41,6 @@ const Header = () => {
                 </Box>
               </Center>
               <IconButton
-                id="aboutUsButton"
-                as="a"
-                href="/team"
-                fontWeight="bold"
-                borderRadius="5px"
-                border="1px solid"
-                variant="outline"
-                icon={<FaUsers />}
-                color="#4368e0"
-                mr="0.5rem"
-              ></IconButton>
-              <IconButton
                 id="gradioAnalyticsButton"
                 as="a"
                 href="/analytics"
