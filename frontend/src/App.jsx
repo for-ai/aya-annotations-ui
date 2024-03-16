@@ -42,7 +42,6 @@ const App = () => {
               <Route path="/contributions" element={<UserContributionPage />} />
             </Route>
             <Route path="*" element={<Error404 />} />
-            <Route path="/team" element={<TeamPage />} />
             <Route path="/analytics" element={<GradioAnalytics />} />
           </Routes>
         </Suspense>
